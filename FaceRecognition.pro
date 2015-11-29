@@ -26,7 +26,7 @@ SOURCES += main.cpp\
     detectObject.cpp \
     ImageUtils_0.7.cpp \
     preprocessFace.cpp \
-    recognition.cpp \
+#    recognition.cpp \
     common_cv.cpp \
     getcamframe.cpp
 
@@ -38,7 +38,7 @@ HEADERS  += facerecognitionmain.h \
     detectObject.h \
     ImageUtils.h \
     preprocessFace.h \
-    recognition.h \
+#   recognition.h \
     getcamframe.h
 
 FORMS    += facerecognitionmain.ui \

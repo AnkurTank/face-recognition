@@ -86,7 +86,21 @@ void initDetectors(CascadeClassifier &faceCascade, CascadeClassifier &eyeCascade
     else
         cout << "Loaded the 2nd Eye Detection cascade classifier [" << eyeCascadeFilename2 << "]." << endl;
 }
-
+// Compare two images by getting the L2 error (square-root of sum of squared error).
+double getSimilarity(const Mat A, const Mat B)
+{
+    if (A.rows > 0 && A.rows == B.rows && A.cols > 0 && A.cols == B.cols) {
+        // Calculate the L2 relative error between the 2 images.
+        double errorL2 = norm(A, B, CV_L2);
+        // Convert to a reasonable scale, since L2 error is summed across all pixels of the image.
+        double similarity = errorL2 / (double)(A.rows * A.cols);
+        return similarity;
+    }
+    else {
+        //cout << "WARNING: Images have a different size in 'getSimilarity()'." << endl;
+        return 100000000.0;  // Return a bad value
+    }
+}
 void CaptureFace::captureface()
 {
 
@@ -127,10 +141,10 @@ void CaptureFace::captureface()
         // Draw light-blue anti-aliased circles for the 2 eyes.
         Scalar eyeColor = CV_RGB(0,255,255);
         if (leftEye.x >= 0) {   // Check if the eye was detected
-            circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
+           // circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
         }
         if (rightEye.x >= 0) {   // Check if the eye was detected
-            circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
+            //circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
         }
     }
 

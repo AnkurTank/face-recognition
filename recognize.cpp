@@ -15,6 +15,7 @@ Recognize::Recognize(QWidget *parent) :
     m_getFramForRec->Dosetup(m_pthread);
 
     connect(m_getFramForRec,SIGNAL(imageQueued()),this,SLOT(Recognize_face()));
+    /*http://stackoverflow.com/questions/14356121/how-to-call-function-after-window-is-shown*/
     connect(this, SIGNAL(window_loaded), this, SLOT(Recognize_face()), Qt::ConnectionType(Qt::QueuedConnection | Qt::UniqueConnection));
 
 }
