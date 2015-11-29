@@ -19,7 +19,7 @@ void FaceRecognitionMain::clear_entername()
 {
     if (this->my_enterName != NULL) {
         delete this->my_enterName;
-        this->my_recognize;
+        this->my_enterName = NULL;
     }
     this->show();
 }

@@ -1,6 +1,7 @@
 #include "entername.h"
 #include "ui_entername.h"
 #include "QDebug"
+#include "common_cv.h"
 
 
 EnterName::EnterName(QWidget *parent) :
@@ -23,15 +24,17 @@ void EnterName::clear_captureface()
         delete this->my_captureface;
         this->my_captureface = NULL;
     }
-    this->show();
+    //this->show();
+    //Go Back to FaceReconitionMain
+    emit entername_closed();
 }
 
 void EnterName::on_btnAdd_clicked()
 {
-       QString strPersonName;
-       strPersonName = ui->lneEntername->text();
-       qDebug() << "Entered name is :" << strPersonName;
+       g_personname = ui->lneEntername->text();
+       qDebug() << "Entered name is :" << g_personname;
 
+       m_enteredName = ui->lneEntername->text().toStdString();
        ui->lneEntername->clear();
 
        if (this->my_captureface == NULL) {

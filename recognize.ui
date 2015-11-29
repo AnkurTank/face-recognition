@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lblRecognizemg">
    <property name="geometry">
     <rect>
      <x>4</x>
@@ -41,7 +41,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>Ankur</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnBack">
