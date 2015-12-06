@@ -70,11 +70,11 @@ QT_BEGIN_NAMESPACE
 extern Ptr<FaceRecognizer> model;
 extern vector<Mat> preprocessedFaces;
 extern vector<int> faceLabels;
-extern vector<string> facename;
+extern vector<QString> facename;
 
 extern QString g_personname;
 extern int m_selectedPerson;
-extern string m_enteredName;
+extern QString m_enteredName;
 extern vector<int> m_latestFaces;
 QT_END_NAMESPACE
 

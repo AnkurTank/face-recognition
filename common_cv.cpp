@@ -54,9 +54,9 @@ QT_BEGIN_NAMESPACE
 Ptr<FaceRecognizer> model;
 vector<Mat> preprocessedFaces;
 vector<int> faceLabels;
-vector<string> facename;
+vector<QString> facename;
 int m_selectedPerson = 1;
-string m_enteredName="";
+QString m_enteredName="";
 vector<int> m_latestFaces;
 
 QString g_personname;

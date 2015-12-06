@@ -16,6 +16,7 @@ CaptureFace::CaptureFace(QWidget *parent) :
 
     m_getcamframe->Dosetup(m_pthread);
     MaximumFace2Becaptured = 10;
+    m_selectedPerson = 1;
 
     connect(m_getcamframe,SIGNAL(imageQueued()),this,SLOT(captureface()));
 }
@@ -32,7 +33,7 @@ void CaptureFace::closeEvent(QCloseEvent * )
 
 void CaptureFace::on_pbtBack_clicked()
 {
-    close();
+    this->close();
 }
 
 // Get access to the webcam.
@@ -162,7 +163,6 @@ void CaptureFace::captureface()
         double timeDiff_seconds = (current_time - old_time)/getTickFrequency();
 
 
-
         // Only process the face if it is noticeably different from the previous frame and there has been noticeable time gap.
         if ((imageDiff > CHANGE_IN_IMAGE_FOR_COLLECTION) && (timeDiff_seconds > CHANGE_IN_SECONDS_FOR_COLLECTION)) {
 
@@ -171,6 +171,7 @@ void CaptureFace::captureface()
             Mat mirroredFace;
             flip(preprocessedFace, mirroredFace, 1);
 
+            m_selectedPerson = m_selectedPerson + 1;
             // Add the face images to the list of detected faces.
             preprocessedFaces.push_back(preprocessedFace);
             preprocessedFaces.push_back(mirroredFace);

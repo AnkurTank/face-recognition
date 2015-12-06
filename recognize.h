@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "getcamframe.h"
+#include "common_cv.h"
 
 namespace Ui {
 class Recognize;
@@ -15,6 +16,7 @@ class Recognize : public QDialog
 public:
     explicit Recognize(QWidget *parent = 0);
     ~Recognize();
+    bool initializeFaceRecognizer();
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -25,6 +27,7 @@ private:
     getcamframe * m_getFramForRec;
     bool m_capture_done;
     QThread *m_pthread;
+    Ptr<FaceRecognizer> model;
 
     CascadeClassifier faceCascade;
     CascadeClassifier eyeCascade1;
@@ -34,8 +37,8 @@ signals:
     void recognize_closed();
     void window_loaded();
 private slots:
-    void on_btnBack_clicked();
     void Recognize_face();
+    void on_btnRecBack_clicked();
 };
 
 #endif // RECOGNIZE_H

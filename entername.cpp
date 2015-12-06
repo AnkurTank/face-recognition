@@ -34,7 +34,7 @@ void EnterName::on_btnAdd_clicked()
        g_personname = ui->lneEntername->text();
        qDebug() << "Entered name is :" << g_personname;
 
-       m_enteredName = ui->lneEntername->text().toStdString();
+       m_enteredName = ui->lneEntername->text();
        ui->lneEntername->clear();
 
        if (this->my_captureface == NULL) {
