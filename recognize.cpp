@@ -1,6 +1,9 @@
 #include "recognize.h"
 #include "ui_recognize.h"
-
+#include <QFile>
+#include <QTextStream>
+#include <fstream>
+#include <QStringList>
 
 Recognize::Recognize(QWidget *parent) :
     QDialog(parent),
@@ -61,6 +64,7 @@ void initrecDetectors(CascadeClassifier &faceCascade, CascadeClassifier &eyeCasc
 bool Recognize::initializeFaceRecognizer(){
 
     bool haveContribModule = initModule_contrib();
+    bool loadedRecognizerFile = false;
     string facerecAlgorithm = "FaceRecognizer.Fisherfaces";
     if (!haveContribModule) {
 
@@ -70,19 +74,56 @@ bool Recognize::initializeFaceRecognizer(){
     }
 
     model = Algorithm::create<FaceRecognizer>(facerecAlgorithm);
+    Mat labels;
     if (model.empty())
     {
         cerr << "Error: The FaceRecognizer[" << facerecAlgorithm << "] is not available in your version of opencv";
         cerr << "Please Update to openCV v2.4.1 or newer" <<endl;
         exit(1);
     }
+    qDebug() << "-----initializeFaceRecognizer()----------"<<endl;
+    qDebug() << "dataStoreFile" << dataStoreFile << endl;
+        QFile dstfile(dataStoreFile);
 
-    if (preprocessedFaces.size() != 0) {
+        if (dstfile.exists())
+        {
+            try {
+                qDebug()<<"Inside Try catch block"<<endl;
+                /*Load trainning module*/
+                model->load(dataStoreFile.toStdString());
+                labels = model->get<Mat>("labels");
+                loadedRecognizerFile = true;
+                qDebug()<<"Before readBackFaceNames"<<endl;
+                readBackFaceNames(faceNameStorePath);
+
+            } catch (cv::Exception &e) {}
+            if (labels.rows <= 0  ) {
+                qDebug() << "ERROR: Couldn't load trained data from "
+                            "["<<dataStoreFile <<"]!" << endl;
+                //exit(1);
+            }
+        } else {
+            qDebug() << dataStoreFile <<"is not present"<<endl;
+        }
+
+    if (preprocessedFaces.size() != 0 ) {
+
         //Do the training from collected faces.
         model->train(preprocessedFaces, faceLabels);
+
+        //Save training model
+        qDebug() << "Let's save face recognitiion model"<<endl;
+        model->save(dataStoreFile.toStdString());
+        storeFaceNames(faceNameStorePath);
+
     } else {
-        cerr <<"Recognition can't done without training!"<<endl;
-        exit(1);
+
+        cout << "preprocessedFaces.size() is zero" << endl;
+        //If model is not loaded from saved files exit
+        if (loadedRecognizerFile != true) {
+            exit(1);
+            cerr <<"Recognition can't be done without training!"<<endl;
+        }
     }
     return true;
 }
@@ -144,7 +185,7 @@ void Recognize::Recognize_face()
         Rect searchedLeftEye, searchedRightEye; // top-left and top-right regions of the face, where eyes were searched.
         Point leftEye, rightEye;    // Position of the detected eyes.
         Mat preprocessedFace = getPreprocessedFace(img, faceWidth, faceCascade, eyeCascade1, eyeCascade2, preprocessLeftAndRightSeparately, &faceRect, &leftEye, &rightEye, &searchedLeftEye, &searchedRightEye);
-        Mat old_prepreprocessedFace;
+       // Mat old_prepreprocessedFace;
 
         bool gotFaceAndEyes = false;
         if (preprocessedFace.data)
@@ -155,6 +196,7 @@ void Recognize::Recognize_face()
             rectangle(img, faceRect, CV_RGB(255, 255, 0), 2, CV_AA);
 
             // Draw light-blue anti-aliased circles for the 2 eyes.
+#ifdef DISPLAY_EYE
             Scalar eyeColor = CV_RGB(0,255,255);
             if (leftEye.x >= 0) {   // Check if the eye was detected
                 circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
@@ -162,14 +204,16 @@ void Recognize::Recognize_face()
             if (rightEye.x >= 0) {   // Check if the eye was detected
                 circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
             }
+#endif
         }
 
         int identity = -1;
         //If preprocessed face is empty no need to predict face and extract name
         if (!preprocessedFace.empty()) {
             identity = model->predict(preprocessedFace);
-
+            qDebug() << "identity = " << identity <<endl;
             //ui->lblRecName = QString(facename[identity]);
+            qDebug() << "Size of facename vector : "<<facename.size()<<endl;
             QString recname(facename.at(identity));
             qDebug() << "FaceName = "<< recname << "Identity = "<< identity;
             ui->lblRecName->setText(recname);
@@ -193,4 +237,55 @@ void Recognize::Recognize_face()
 
 }
 
+bool Recognize ::storeFaceNames(QString Filename){
 
+    QFile mFile(Filename);
+    qDebug()<<"Filename :"<<Filename<<endl;
+    if (!mFile.open(QFile::WriteOnly | QFile::Text)) {
+
+        qDebug() << "Could not open" << Filename <<"file for writing"<< endl;
+        return 1;
+    }
+    QTextStream out(&mFile);
+    int i = 0;
+    while(i < facename.size() )
+    {
+        qDebug() << "name:" << facename.at(i) << endl;
+        out << facename.at(i) << endl;
+        i++;
+    }
+    mFile.flush();
+    mFile.close();
+
+    return 0;
+
+}
+bool Recognize ::readBackFaceNames(QString Filename){
+
+     QFile mFile(Filename);
+     qDebug()<< "Inside readBackFaceNames()"<<endl;
+     if (!mFile.open(QFile::ReadOnly | QFile::Text)) {
+         qDebug()<< "Could not open" << Filename <<"file for reading" << endl;
+         return 1;
+     }
+     qDebug()<< Filename << "File Opened Successfully"<<endl;
+
+     QTextStream input(&mFile);
+     QStringList line;
+     int i = 0;
+     for( ; ! input.atEnd();)
+     {
+         line << input.readLine();
+         facename.push_back(line.at(i));
+         qDebug() << "Reading file line: " << line.at(i) << endl;
+         i++;
+     }
+     i = 0;
+     while( i < facename.size())
+     {
+         qDebug() << "Str =" << facename.at(i)<<endl;
+         i++;
+     }
+     mFile.close();
+    return 0;
+}

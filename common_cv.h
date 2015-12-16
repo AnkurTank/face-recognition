@@ -76,6 +76,9 @@ extern QString g_personname;
 extern int m_selectedPerson;
 extern QString m_enteredName;
 extern vector<int> m_latestFaces;
+extern QString homepath ;
+extern QString dataStoreFile;
+extern QString faceNameStorePath;
 QT_END_NAMESPACE
 
 #endif // COMMON_CV_H

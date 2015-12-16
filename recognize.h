@@ -17,6 +17,8 @@ public:
     explicit Recognize(QWidget *parent = 0);
     ~Recognize();
     bool initializeFaceRecognizer();
+    bool storeFaceNames(QString Filename);
+    bool readBackFaceNames(QString Filename);
 
 protected:
     void closeEvent(QCloseEvent *);

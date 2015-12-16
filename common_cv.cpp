@@ -58,6 +58,9 @@ vector<QString> facename;
 int m_selectedPerson = 1;
 QString m_enteredName="";
 vector<int> m_latestFaces;
-
+QString homepath = getenv("HOME");
+QString homepath2 = getenv("HOME");
+QString dataStoreFile = homepath.append("/trainedData.yml");
+QString faceNameStorePath = homepath2.append("/faceNames.txt");
 QString g_personname;
 QT_END_NAMESPACE
