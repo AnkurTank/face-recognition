@@ -33,6 +33,23 @@ void CaptureFace::closeEvent(QCloseEvent * )
 
 void CaptureFace::on_pbtBack_clicked()
 {
+    m_capture_done = false;
+
+    if (m_getcamframe->m_bStart) {
+        m_getcamframe->m_bStart = false;
+
+        qDebug() << "Done button clicked\n";
+        qDebug() << "MaximumFace2Becaptured =" << MaximumFace2Becaptured << endl;
+        if (! m_getcamframe->my_imgQueue.isEmpty()) {
+                m_getcamframe->my_imgQueue.clear();
+        } else {
+            qDebug() << "Image que is empty no need to clear it \n";
+        }
+        if (m_pthread != NULL) {
+            m_pthread->exit(0);
+        }
+    }
+
     this->close();
 }
 
@@ -110,105 +127,104 @@ void CaptureFace::captureface()
     CascadeClassifier eyeCascade2;
     */
     //VideoCapture videoCapture;
-    Mat img(m_getcamframe->my_imgQueue.dequeue());
+    if (! m_getcamframe->my_imgQueue.isEmpty()) {
+        Mat img(m_getcamframe->my_imgQueue.dequeue());
 
-    //int cameraNumber = 0;   // Change this if you want to use a different camera device.
+        //int cameraNumber = 0;   // Change this if you want to use a different camera device.
 
-    // Get access to the webcam.
-    //initWebcam(videoCapture, cameraNumber);
+        // Get access to the webcam.
+        //initWebcam(videoCapture, cameraNumber);
 
-    // Try to set the camera resolution. Note that this only works for some cameras on
-    // some computers and only for some drivers, so don't rely on it to work!
-    //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, DESIRED_CAMERA_WIDTH);
-    //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, DESIRED_CAMERA_HEIGHT);
+        // Try to set the camera resolution. Note that this only works for some cameras on
+        // some computers and only for some drivers, so don't rely on it to work!
+        //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, DESIRED_CAMERA_WIDTH);
+        //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, DESIRED_CAMERA_HEIGHT);
 
 
-    // Find a face and preprocess it to have a standard size and contrast & brightness.
-    Rect faceRect;  // Position of detected face.
-    Rect searchedLeftEye, searchedRightEye; // top-left and top-right regions of the face, where eyes were searched.
-    Point leftEye, rightEye;    // Position of the detected eyes.
-    Mat preprocessedFace = getPreprocessedFace(img, faceWidth, faceCascade, eyeCascade1, eyeCascade2, preprocessLeftAndRightSeparately, &faceRect, &leftEye, &rightEye, &searchedLeftEye, &searchedRightEye);
-    Mat old_prepreprocessedFace;
-    double old_time = 0;
+        // Find a face and preprocess it to have a standard size and contrast & brightness.
+        Rect faceRect;  // Position of detected face.
+        Rect searchedLeftEye, searchedRightEye; // top-left and top-right regions of the face, where eyes were searched.
+        Point leftEye, rightEye;    // Position of the detected eyes.
+        Mat preprocessedFace = getPreprocessedFace(img, faceWidth, faceCascade, eyeCascade1, eyeCascade2, preprocessLeftAndRightSeparately, &faceRect, &leftEye, &rightEye, &searchedLeftEye, &searchedRightEye);
+        Mat old_prepreprocessedFace;
+        double old_time = 0;
 
-    bool gotFaceAndEyes = false;
-    if (preprocessedFace.data)
-        gotFaceAndEyes = true;
+        bool gotFaceAndEyes = false;
+        if (preprocessedFace.data)
+            gotFaceAndEyes = true;
 
-    // Draw an anti-aliased rectangle around the detected face.
-    if (faceRect.width > 0) {
-        rectangle(img, faceRect, CV_RGB(255, 255, 0), 2, CV_AA);
+        // Draw an anti-aliased rectangle around the detected face.
+        if (faceRect.width > 0) {
+            rectangle(img, faceRect, CV_RGB(255, 255, 0), 2, CV_AA);
 
-        // Draw light-blue anti-aliased circles for the 2 eyes.
-        Scalar eyeColor = CV_RGB(0,255,255);
-        if (leftEye.x >= 0) {   // Check if the eye was detected
-           // circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
+#ifdef DISPLAY_EYE
+            // Draw light-blue anti-aliased circles for the 2 eyes.
+            Scalar eyeColor = CV_RGB(0,255,255);
+            if (leftEye.x >= 0) {   // Check if the eye was detected
+                circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
+            }
+            if (rightEye.x >= 0) {   // Check if the eye was detected
+                circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
+            }
+#endif
         }
-        if (rightEye.x >= 0) {   // Check if the eye was detected
-            //circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
-        }
-    }
+
 
 #if 1
-    if (gotFaceAndEyes) {
+        if (gotFaceAndEyes) {
 
-        // Check if this face looks somewhat different from the previously collected face.
-        double imageDiff = 10000000000.0;
-        if (old_prepreprocessedFace.data) {
-            imageDiff = getSimilarity(preprocessedFace, old_prepreprocessedFace);
-        }
+            // Check if this face looks somewhat different from the previously collected face.
+            double imageDiff = 10000000000.0;
+            if (old_prepreprocessedFace.data) {
+                imageDiff = getSimilarity(preprocessedFace, old_prepreprocessedFace);
+            }
 
-        // Also record when it happened.
-        double current_time = (double)getTickCount();
-        double timeDiff_seconds = (current_time - old_time)/getTickFrequency();
+            // Also record when it happened.
+            double current_time = (double)getTickCount();
+            double timeDiff_seconds = (current_time - old_time)/getTickFrequency();
 
 
-        // Only process the face if it is noticeably different from the previous frame and there has been noticeable time gap.
-        if ((imageDiff > CHANGE_IN_IMAGE_FOR_COLLECTION) && (timeDiff_seconds > CHANGE_IN_SECONDS_FOR_COLLECTION)) {
+            // Only process the face if it is noticeably different from the previous frame and there has been noticeable time gap.
+            if ((imageDiff > CHANGE_IN_IMAGE_FOR_COLLECTION) && (timeDiff_seconds > CHANGE_IN_SECONDS_FOR_COLLECTION)) {
 
-           if (MaximumFace2Becaptured != 0) {
-            // Also add the mirror image to the training set, so we have more training data, as well as to deal with faces looking to the left or right.
-            Mat mirroredFace;
-            flip(preprocessedFace, mirroredFace, 1);
+                if (MaximumFace2Becaptured != 0) {
+                    // Also add the mirror image to the training set, so we have more training data, as well as to deal with faces looking to the left or right.
+                    Mat mirroredFace;
+                    flip(preprocessedFace, mirroredFace, 1);
 
-            m_selectedPerson = m_selectedPerson + 1;
-            // Add the face images to the list of detected faces.
-            preprocessedFaces.push_back(preprocessedFace);
-            preprocessedFaces.push_back(mirroredFace);
-            faceLabels.push_back(m_selectedPerson);
-            faceLabels.push_back(m_selectedPerson);
-            facename.push_back(m_enteredName);
-            facename.push_back(m_enteredName);
+                    m_selectedPerson = m_selectedPerson + 1;
+                    // Add the face images to the list of detected faces.
+                    preprocessedFaces.push_back(preprocessedFace);
+                    preprocessedFaces.push_back(mirroredFace);
+                    faceLabels.push_back(m_selectedPerson);
+                    faceLabels.push_back(m_selectedPerson);
+                    facename.push_back(m_enteredName);
+                    facename.push_back(m_enteredName);
 
-#if 0
-            // Keep a reference to the latest face of each person.
-            m_latestFaces[m_selectedPerson] = preprocessedFaces.size() - 2;  // Point to the non-mirrored face.
-            // Show the number of collected faces. But since we also store mirrored faces, just show how many the user thinks they stored.
-            cout << "Saved face " << (preprocessedFaces.size()/2) << " for person " << m_selectedPerson << endl;
-#endif
-            // Make a white flash on the face, so the user knows a photo has been taken.
-            Mat displayedFaceRegion = img(faceRect);
-            displayedFaceRegion += CV_RGB(90,90,90);
+                    // Make a white flash on the face, so the user knows a photo has been taken.
+                    Mat displayedFaceRegion = img(faceRect);
+                    displayedFaceRegion += CV_RGB(90,90,90);
 
-            // Keep a copy of the processed face, to compare on next iteration.
-            old_prepreprocessedFace = preprocessedFace;
-            old_time = current_time;
-             qDebug() << "InLoop =" << MaximumFace2Becaptured << endl;
-            MaximumFace2Becaptured = MaximumFace2Becaptured - 1;
+                    // Keep a copy of the processed face, to compare on next iteration.
+                    old_prepreprocessedFace = preprocessedFace;
+                    old_time = current_time;
+                    qDebug() << "InLoop =" << MaximumFace2Becaptured << endl;
+                    MaximumFace2Becaptured = MaximumFace2Becaptured - 1;
+                }
+
             }
 
         }
 
-    }
-
 #endif
 
-    QImage qimg = QImage((const unsigned char*) img.data,
-                         img.cols, img.rows,
-                         QImage::Format_RGB888); // convert to QImage
+        QImage qimg = QImage((const unsigned char*) img.data,
+                             img.cols, img.rows,
+                             QImage::Format_RGB888); // convert to QImage
 
-    ui->lblCaptureImg->setPixmap(QPixmap::fromImage(qimg));
-    ui->lblCaptureImg->show();
+        ui->lblCaptureImg->setPixmap(QPixmap::fromImage(qimg));
+        ui->lblCaptureImg->show();
+    }
 }
 
 void CaptureFace::on_pbtDone_clicked()
