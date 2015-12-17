@@ -88,9 +88,10 @@ void detectObjectsCustom(const Mat &img, CascadeClassifier &cascade, vector<Rect
 void detectLargestObject(const Mat &img, CascadeClassifier &cascade, Rect &largestObject, int scaledWidth)
 {
     // Only search for just 1 object (the biggest in the image).
-    int flags = CASCADE_FIND_BIGGEST_OBJECT;// | CASCADE_DO_ROUGH_SEARCH;
+    int flags = CASCADE_FIND_BIGGEST_OBJECT | CASCADE_DO_ROUGH_SEARCH;
     // Smallest object size.
-    Size minFeatureSize = Size(20, 20);
+   Size minFeatureSize = Size(20, 20);
+    //Size minFeatureSize = Size(80, 80);
     // How detailed should the search be. Must be larger than 1.0.
     float searchScaleFactor = 1.1f;
     // How much the detections should be filtered out. This should depend on how bad false detections are to your system.

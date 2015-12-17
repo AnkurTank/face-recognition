@@ -18,8 +18,8 @@ const float UNKNOWN_PERSON_THRESHOLD = 0.7f;
 
 // Cascade Classifier file, used for Face Detection.
 
-const char *faceCascadeFilename = "/opt/FaceRecognition/bin/lbpcascade_frontalface.xml";     // LBP face detector.
-//const char *faceCascadeFilename = "haarcascade_frontalface_alt_tree.xml";  // Haar face detector.
+//const char *faceCascadeFilename = "/opt/FaceRecognition/bin/lbpcascade_frontalface.xml";     // LBP face detector.
+const char *faceCascadeFilename = "/opt/FaceRecognition/bin/haarcascade_frontalface_alt_tree.xml";  // Haar face detector.
 //const char *eyeCascadeFilename1 = "haarcascade_lefteye_2splits.xml";   // Best eye detector for open-or-closed eyes.
 //const char *eyeCascadeFilename2 = "haarcascade_righteye_2splits.xml";   // Best eye detector for open-or-closed eyes.
 //const char *eyeCascadeFilename1 = "haarcascade_mcs_lefteye.xml";       // Good eye detector for open-or-closed eyes.

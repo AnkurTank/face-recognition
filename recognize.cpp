@@ -61,7 +61,8 @@ void initrecDetectors(CascadeClassifier &faceCascade, CascadeClassifier &eyeCasc
 bool Recognize::initializeFaceRecognizer(){
 
     bool haveContribModule = initModule_contrib();
-    string facerecAlgorithm = "FaceRecognizer.Fisherfaces";
+    //string facerecAlgorithm = "FaceRecognizer.Fisherfaces";
+    string facerecAlgorithm = "FaceRecognizer.Eigenfaces";
     if (!haveContribModule) {
 
         cerr << "Error : The 'Contrib' module is needed for";
@@ -154,7 +155,8 @@ void Recognize::Recognize_face()
         if (faceRect.width > 0) {
             rectangle(img, faceRect, CV_RGB(255, 255, 0), 2, CV_AA);
 
-            // Draw light-blue anti-aliased circles for the 2 eyes.
+#if 0
+            // Draw anti-aliased circles for the 2 eyes.
             Scalar eyeColor = CV_RGB(0,255,255);
             if (leftEye.x >= 0) {   // Check if the eye was detected
                 circle(img, Point(faceRect.x + leftEye.x, faceRect.y + leftEye.y), 6, eyeColor, 1, CV_AA);
@@ -162,6 +164,7 @@ void Recognize::Recognize_face()
             if (rightEye.x >= 0) {   // Check if the eye was detected
                 circle(img, Point(faceRect.x + rightEye.x, faceRect.y + rightEye.y), 6, eyeColor, 1, CV_AA);
             }
+#endif
         }
 
         int identity = -1;
