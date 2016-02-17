@@ -7,6 +7,8 @@
 //const char *facerecAlgorithm = "FaceRecognizer.Fisherfaces";
 const char *facerecAlgorithm = "FaceRecognizer.Eigenfaces";
 
+//#define FACEREC_ALGO "FaceRecognizer.Eigenfaces";
+
 
 // Sets how confident the Face Verification algorithm should be to decide if it is an unknown person or a known person.
 // A value roughly around 0.5 seems OK for Eigenfaces or 0.7 for Fisherfaces, but you may want to adjust it for your

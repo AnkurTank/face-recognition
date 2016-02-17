@@ -65,7 +65,7 @@ bool Recognize::initializeFaceRecognizer(){
 
     bool haveContribModule = initModule_contrib();
     bool loadedRecognizerFile = false;
-    string facerecAlgorithm = facerecAlgorithm;
+    string facerecAlgorithm = "FaceRecognizer.Eigenfaces";
     if (!haveContribModule) {
 
         cerr << "Error : The 'Contrib' module is needed for";
@@ -180,8 +180,10 @@ void Recognize::on_btnRecBack_clicked()
 
 void Recognize::Recognize_face()
 {
+     qDebug() << "Starting Recognize_face()"<<endl;
     if (!m_getFramForRec->my_imgQueue.isEmpty())
     {
+
         Mat img(m_getFramForRec->my_imgQueue.dequeue());
         // Find a face and preprocess it to have a standard size and contrast & brightness.
         Rect faceRect;  // Position of detected face.
