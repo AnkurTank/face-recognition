@@ -65,7 +65,7 @@ bool Recognize::initializeFaceRecognizer(){
 
     bool haveContribModule = initModule_contrib();
     bool loadedRecognizerFile = false;
-    string facerecAlgorithm = "FaceRecognizer.Fisherfaces";
+    string facerecAlgorithm = facerecAlgorithm;
     if (!haveContribModule) {
 
         cerr << "Error : The 'Contrib' module is needed for";
@@ -85,6 +85,8 @@ bool Recognize::initializeFaceRecognizer(){
     qDebug() << "dataStoreFile" << dataStoreFile << endl;
         QFile dstfile(dataStoreFile);
 
+// As of not now saving and loading data from file
+#if 0
         if (dstfile.exists())
         {
             try {
@@ -105,6 +107,7 @@ bool Recognize::initializeFaceRecognizer(){
         } else {
             qDebug() << dataStoreFile <<"is not present"<<endl;
         }
+#endif
 
     if (preprocessedFaces.size() != 0 ) {
 
@@ -114,7 +117,7 @@ bool Recognize::initializeFaceRecognizer(){
         //Save training model
         qDebug() << "Let's save face recognitiion model"<<endl;
         model->save(dataStoreFile.toStdString());
-        storeFaceNames(faceNameStorePath);
+        //storeFaceNames(faceNameStorePath);
 
     } else {
 
@@ -214,9 +217,37 @@ void Recognize::Recognize_face()
             qDebug() << "identity = " << identity <<endl;
             //ui->lblRecName = QString(facename[identity]);
             qDebug() << "Size of facename vector : "<<facename.size()<<endl;
-            QString recname(facename.at(identity));
-            qDebug() << "FaceName = "<< recname << "Identity = "<< identity;
-            ui->lblRecName->setText(recname);
+            qDebug() << "Size of faceLabels vector : "<<faceLabels.size()<<endl;
+
+            // Get some required data from the FaceRecognizer model.
+            Mat eigenvectors = model->get<Mat>("eigenvectors");
+            Mat averageFaceRow = model->get<Mat>("mean");
+            // Project the input image onto the eigenspace.
+            Mat projection = subspaceProject(eigenvectors, averageFaceRow,
+            preprocessedFace.reshape(1,1));
+            // Generate the reconstructed face back from the eigenspace.
+            Mat reconstructionRow = subspaceReconstruct(eigenvectors,
+            averageFaceRow, projection);
+
+            // Make it a rectangular shaped image instead of a single row.
+            Mat reconstructionMat = reconstructionRow.reshape(1, faceHeight);
+            // Convert the floating-point pixels to regular 8-bit uchar.
+            Mat reconstructedFace = Mat(reconstructionMat.size(), CV_8U);
+            reconstructionMat.convertTo(reconstructedFace, CV_8U, 1, 0);
+            double similarity = getSimilarity(preprocessedFace, reconstructedFace);
+            qDebug() << "Similarity:" <<similarity<< "Unknown person Threshold:"<< UNKNOWN_PERSON_THRESHOLD;
+            if (similarity > UNKNOWN_PERSON_THRESHOLD) {
+                identity = -1; // Unknown person.
+            }
+
+            if (identity > 0 ) {
+                QString recname(facename.at(identity));
+                qDebug() << "FaceName = "<< recname << "Identity = "<< identity;
+                ui->lblRecName->setText(recname);
+            } else {
+                qDebug() << "Less confidence" << endl;
+                ui->lblRecName->setText("");
+            }
         } else {
             qDebug() << "Recognize_face():!!!Error, Empty Preprocessed face" <<endl;
             ui->lblRecName->setText("");

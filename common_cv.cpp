@@ -13,7 +13,7 @@ const char *facerecAlgorithm = "FaceRecognizer.Eigenfaces";
 // conditions, and if you use a different Face Recognition algorithm.
 // Note that a higher threshold value means accepting more faces as known people,
 // whereas lower values mean more faces will be classified as "unknown".
-const float UNKNOWN_PERSON_THRESHOLD = 0.7f;
+const float UNKNOWN_PERSON_THRESHOLD = 0.5f ;// 0.7f;
 
 
 // Cascade Classifier file, used for Face Detection.
@@ -41,7 +41,7 @@ const int DESIRED_CAMERA_HEIGHT = 480;
 const double CHANGE_IN_IMAGE_FOR_COLLECTION = 0.3;      // How much the facial image should change before collecting a new face photo for training.
 const double CHANGE_IN_SECONDS_FOR_COLLECTION = 1.0;       // How much time must pass before collecting a new face photo for training.
 
-const char *windowName = "WebcamFaceRec";   // Name shown in the GUI window.
+//const char *windowName = "WebcamFaceRec";   // Name shown in the GUI window.
 const int BORDER = 8;  // Border between GUI elements to the edge of the image.
 
 const bool preprocessLeftAndRightSeparately = true;   // Preprocess left & right sides of the face separately, in case there is stronger light on one side.

@@ -15,8 +15,8 @@ CaptureFace::CaptureFace(QWidget *parent) :
     m_getcamframe = new getcamframe();
 
     m_getcamframe->Dosetup(m_pthread);
-    MaximumFace2Becaptured = 10;
-    m_selectedPerson = 1;
+    MaximumFace2Becaptured = 30;
+    //m_selectedPerson = 1;
 
     connect(m_getcamframe,SIGNAL(imageQueued()),this,SLOT(captureface()));
 }

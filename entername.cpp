@@ -19,7 +19,6 @@ EnterName::~EnterName()
 
 void EnterName::clear_captureface()
 {
-
     if (this->my_captureface != NULL) {
         delete this->my_captureface;
         this->my_captureface = NULL;
