@@ -15,13 +15,13 @@ const char *facerecAlgorithm = "FaceRecognizer.Eigenfaces";
 // conditions, and if you use a different Face Recognition algorithm.
 // Note that a higher threshold value means accepting more faces as known people,
 // whereas lower values mean more faces will be classified as "unknown".
-const float UNKNOWN_PERSON_THRESHOLD = 0.5f ;// 0.7f;
+const float UNKNOWN_PERSON_THRESHOLD = 0.2f ;// 0.7f;
 
 
 // Cascade Classifier file, used for Face Detection.
 
-const char *faceCascadeFilename = "/opt/FaceRecognition/bin/lbpcascade_frontalface.xml";     // LBP face detector.
-//const char *faceCascadeFilename = "haarcascade_frontalface_alt_tree.xml";  // Haar face detector.
+//const char *faceCascadeFilename = "/opt/FaceRecognition/bin/lbpcascade_frontalface.xml";     // LBP face detector.
+const char *faceCascadeFilename = "/opt/FaceRecognition/bin/haarcascade_frontalface_alt_tree.xml";  // Haar face detector.
 //const char *eyeCascadeFilename1 = "haarcascade_lefteye_2splits.xml";   // Best eye detector for open-or-closed eyes.
 //const char *eyeCascadeFilename2 = "haarcascade_righteye_2splits.xml";   // Best eye detector for open-or-closed eyes.
 //const char *eyeCascadeFilename1 = "haarcascade_mcs_lefteye.xml";       // Good eye detector for open-or-closed eyes.

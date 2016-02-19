@@ -111,6 +111,8 @@ bool Recognize::initializeFaceRecognizer(){
 
     if (preprocessedFaces.size() != 0 ) {
 
+        qDebug() << "PreProcessedFaces size before training" << preprocessedFaces.size() <<endl;
+
         //Do the training from collected faces.
         model->train(preprocessedFaces, faceLabels);
 
@@ -213,14 +215,18 @@ void Recognize::Recognize_face()
         }
 
         int identity = -1;
+        int id_lable = -1;
+        double confidance = 0;
         //If preprocessed face is empty no need to predict face and extract name
         if (!preprocessedFace.empty()) {
             identity = model->predict(preprocessedFace);
-            qDebug() << "identity = " << identity <<endl;
+            model->predict(preprocessedFace,id_lable, confidance);
+
+            qDebug() << "identity = " << identity <<endl<<" id_label = " << id_lable <<endl;
+            qDebug() << "Confidance = " << confidance << endl;
             //ui->lblRecName = QString(facename[identity]);
             qDebug() << "Size of facename vector : "<<facename.size()<<endl;
             qDebug() << "Size of faceLabels vector : "<<faceLabels.size()<<endl;
-
             // Get some required data from the FaceRecognizer model.
             Mat eigenvectors = model->get<Mat>("eigenvectors");
             Mat averageFaceRow = model->get<Mat>("mean");
@@ -231,11 +237,14 @@ void Recognize::Recognize_face()
             Mat reconstructionRow = subspaceReconstruct(eigenvectors,
             averageFaceRow, projection);
 
+            int faceHeight1 = preprocessedFace.rows;
+
             // Make it a rectangular shaped image instead of a single row.
-            Mat reconstructionMat = reconstructionRow.reshape(1, faceHeight);
+            Mat reconstructionMat = reconstructionRow.reshape(1, faceHeight1);
             // Convert the floating-point pixels to regular 8-bit uchar.
             Mat reconstructedFace = Mat(reconstructionMat.size(), CV_8U);
             reconstructionMat.convertTo(reconstructedFace, CV_8U, 1, 0);
+
             double similarity = getSimilarity(preprocessedFace, reconstructedFace);
             qDebug() << "Similarity:" <<similarity<< "Unknown person Threshold:"<< UNKNOWN_PERSON_THRESHOLD;
             if (similarity > UNKNOWN_PERSON_THRESHOLD) {
